@@ -1,97 +1,34 @@
-const gulp = require("gulp");
-const gap = require("gulp-append-prepend");
+var gulp = require('gulp');
+var path = require('path');
+var sass = require('gulp-sass');
+var autoprefixer = require('gulp-autoprefixer');
+var sourcemaps = require('gulp-sourcemaps');
+var open = require('gulp-open');
 
-gulp.task("licenses", async function () {
-  // this is to add Creative Tim licenses in the production mode for the minified js
-  gulp
-    .src("build/static/js/*chunk.js", { base: "./" })
-    .pipe(
-      gap.prependText(`/*!
+var Paths = {
+  HERE: './',
+  DIST: 'dist/',
+  CSS: './assets/css/',
+  SCSS_TOOLKIT_SOURCES: './assets/scss/now-ui-kit.scss',
+  SCSS: './assets/scss/**/**'
+};
 
-=========================================================
-* Now UI Kit React - v1.5.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/now-ui-kit-react
-* Copyright 2022 Creative Tim (http://www.creative-tim.com)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/`)
-    )
-    .pipe(gulp.dest("./", { overwrite: true }));
-
-  // this is to add Creative Tim licenses in the production mode for the minified js
-  gulp
-    .src("build/static/js/runtime*.js", { base: "./" })
-    .pipe(
-      gap.prependText(`/*!
-
-  =========================================================
-  * Now UI Kit React - v1.5.1
-  =========================================================
-
-  * Product Page: https://www.creative-tim.com/product/now-ui-kit-react
-  * Copyright 2022 Creative Tim (http://www.creative-tim.com)
-
-  * Coded by Creative Tim
-
-  =========================================================
-
-  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-  */`)
-    )
-    .pipe(gulp.dest("./", { overwrite: true }));
-
-  // this is to add Creative Tim licenses in the production mode for the minified html
-  gulp
-    .src("build/index.html", { base: "./" })
-    .pipe(
-      gap.prependText(`<!--
-
-=========================================================
-* Now UI Kit React - v1.5.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/now-ui-kit-react
-* Copyright 2022 Creative Tim (http://www.creative-tim.com)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
--->`)
-    )
-    .pipe(gulp.dest("./", { overwrite: true }));
-
-  // this is to add Creative Tim licenses in the production mode for the minified css
-  gulp
-    .src("build/static/css/*chunk.css", { base: "./" })
-    .pipe(
-      gap.prependText(`/*!
-
-=========================================================
-* Now UI Kit React - v1.5.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/now-ui-kit-react
-* Copyright 2022 Creative Tim (http://www.creative-tim.com)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/`)
-    )
-    .pipe(gulp.dest("./", { overwrite: true }));
-  return;
+gulp.task('compile-scss', function() {
+  return gulp.src(Paths.SCSS_TOOLKIT_SOURCES)
+    .pipe(sourcemaps.init())
+    .pipe(sass().on('error', sass.logError))
+    .pipe(autoprefixer())
+    .pipe(sourcemaps.write(Paths.HERE))
+    .pipe(gulp.dest(Paths.CSS));
 });
+
+gulp.task('watch', function() {
+  gulp.watch(Paths.SCSS, ['compile-scss']);
+});
+
+gulp.task('open', function() {
+  gulp.src('index.html')
+    .pipe(open());
+});
+
+gulp.task('open-app', ['open', 'watch']);
